@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#10112d">
+<title>Fall in COMM · 스파이 게임</title>
+<link rel="stylesheet" href="https://use.typekit.net/gwn6foh.css">
+<style>
+  @font-face{ font-family:'Cafe24ShiningStar'; src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_twelve@1.1/Cafe24Shiningstar.woff') format('woff'); font-weight:normal; font-display:swap; }
+  @font-face{ font-family:'Presentation'; src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/2404@1.0/Freesentation-4Regular.woff2') format('woff2'); font-weight:400; font-display:swap; }
+  @font-face{ font-family:'Presentation'; src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/2404@1.0/Freesentation-5Medium.woff2') format('woff2'); font-weight:500; font-display:swap; }
+  @font-face{ font-family:'Presentation'; src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/2404@1.0/Freesentation-6SemiBold.woff2') format('woff2'); font-weight:600; font-display:swap; }
+  @font-face{ font-family:'Presentation'; src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/2404@1.0/Freesentation-7Bold.woff2') format('woff2'); font-weight:700; font-display:swap; }
+  @font-face{ font-family:'Presentation'; src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/2404@1.0/Freesentation-9Black.woff2') format('woff2'); font-weight:900; font-display:swap; }
+
+  :root{
+    --void:#10112d;
+    --night:#191447;
+    --coral:#ee8a8f;
+    --mint:#49d8b4;
+    --blush:#e8bce0;
+    --cream:#f8f4ec;
+    --cream-dim:rgba(248,244,236,0.62);
+    --cream-faint:rgba(248,244,236,0.36);
+    --spy:#ee8a8f;
+    --citizen:#49d8b4;
+    --disp-title:"above-the-sky-condensed", sans-serif;
+    --disp-kr:'Cafe24ShiningStar', 'Presentation', sans-serif;
+    --sans:'Presentation', sans-serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent;}
+  html,body{min-height:100%; background:var(--void); color:var(--cream); font-family:var(--sans); -webkit-font-smoothing:antialiased;}
+  body{
+    background:
+      radial-gradient(60% 45% at 82% 4%, rgba(238,138,143,0.16), transparent 62%),
+      radial-gradient(55% 40% at 10% 90%, rgba(73,216,180,0.13), transparent 62%),
+      linear-gradient(180deg, var(--void) 0%, var(--night) 60%, var(--void) 100%);
+    min-height:100dvh;
+    display:flex; align-items:center; justify-content:center;
+    padding:8vh 6vw;
+  }
+  button{font-family:inherit; cursor:pointer; background:none; border:none; color:inherit;}
+  input{font-family:inherit;}
+  button:focus-visible, input:focus-visible{outline:2px solid var(--mint); outline-offset:2px;}
+
+  #wordmark{position:fixed; top:18px; left:20px; font-family:var(--disp-title); font-size:14px; color:var(--cream); opacity:0.7;}
+
+  .card{
+    width:100%; max-width:440px;
+    background:rgba(248,244,236,0.05);
+    border:1px solid rgba(248,244,236,0.14);
+    border-radius:22px;
+    padding:38px 28px;
+    backdrop-filter:blur(10px);
+    text-align:center;
+    opacity:0; transform:translateY(16px);
+    animation:cardIn .6s cubic-bezier(.19,1,.22,1) forwards;
+  }
+  @keyframes cardIn{ to{opacity:1; transform:translateY(0);} }
+
+  .eyebrow{font-family:var(--sans); font-size:12px; letter-spacing:0.16em; text-transform:uppercase; color:var(--cream-dim); font-weight:600; margin-bottom:10px;}
+  .title{font-family:var(--disp-kr); font-size:clamp(26px,7vw,32px); font-weight:400; margin-bottom:10px;}
+  .desc{font-size:13.5px; color:var(--cream-dim); line-height:1.7; margin-bottom:26px;}
+
+  .field{text-align:left; margin-bottom:14px;}
+  .field label{display:block; font-size:12px; color:var(--cream-dim); margin-bottom:6px; font-weight:600;}
+  .field input{
+    width:100%; padding:14px 16px; border-radius:12px;
+    background:rgba(248,244,236,0.07); border:1px solid rgba(248,244,236,0.18);
+    color:var(--cream); font-size:16px; transition:border-color .2s ease, background .2s ease;
+  }
+  .field input::placeholder{color:var(--cream-faint);}
+  .field input:focus{border-color:var(--mint); background:rgba(248,244,236,0.1);}
+
+  .btn{
+    width:100%; margin-top:8px; padding:15px; border-radius:12px;
+    background:linear-gradient(120deg, var(--coral), var(--blush));
+    color:#1c0f2e; font-weight:700; font-size:15px;
+    transition:transform .2s ease, filter .2s ease;
+  }
+  .btn:hover{filter:brightness(1.06);}
+  .btn:active{transform:scale(.97);}
+  .btn:disabled{opacity:0.5; pointer-events:none;}
+  .btn.ghost{
+    background:rgba(248,244,236,0.07); color:var(--cream); border:1px solid rgba(248,244,236,0.2);
+    font-weight:600;
+  }
+
+  .error{
+    margin-top:14px; padding:11px 14px; border-radius:10px;
+    background:rgba(238,138,143,0.12); border:1px solid rgba(238,138,143,0.4);
+    color:#ffd7d9; font-size:13px; line-height:1.5; text-align:left;
+    display:none;
+  }
+  .error.show{display:block;}
+
+  .spinner{width:26px; height:26px; border-radius:50%; border:3px solid rgba(248,244,236,0.2); border-top-color:var(--cream); margin:0 auto 18px; animation:spin 0.9s linear infinite;}
+  @keyframes spin{ to{transform:rotate(360deg);} }
+
+  .role-badge{
+    display:inline-block; padding:8px 20px; border-radius:999px;
+    font-family:var(--disp-title); font-size:19px; letter-spacing:0.02em;
+    margin-bottom:18px;
+  }
+  .role-badge.citizen{ background:rgba(73,216,180,0.15); color:var(--citizen); border:1px solid rgba(73,216,180,0.4); }
+  .role-badge.spy{ background:rgba(238,138,143,0.15); color:var(--spy); border:1px solid rgba(238,138,143,0.4); }
+
+  .role-body{font-size:14px; line-height:1.85; color:var(--cream-dim); text-align:left; margin-bottom:22px; white-space:pre-line;}
+  .role-body b{color:var(--cream); font-weight:700;}
+
+  .missions{text-align:left; margin-bottom:22px;}
+  .mission-item{
+    background:rgba(248,244,236,0.06); border:1px solid rgba(248,244,236,0.14);
+    border-radius:14px; padding:16px 18px; margin-bottom:10px;
+    font-size:14px; line-height:1.6; color:var(--cream);
+  }
+  .mission-item .num{color:var(--spy); font-family:var(--disp-title); font-size:13px; letter-spacing:0.06em; display:block; margin-bottom:4px;}
+
+  .guide-panel{
+    margin-top:16px; text-align:left; overflow:hidden; max-height:0;
+    transition:max-height .4s ease;
+  }
+  .guide-panel.open{max-height:400px;}
+  .guide-inner{
+    background:rgba(73,216,180,0.08); border:1px solid rgba(73,216,180,0.3);
+    border-radius:14px; padding:16px 18px; font-size:13px; line-height:1.75; color:var(--cream-dim); margin-top:6px;
+  }
+  .guide-inner b{color:var(--citizen);}
+
+  .meta{margin-top:20px; font-size:11.5px; color:var(--cream-faint); line-height:1.6;}
+
+  .hidden{display:none !important;}
+
+  @media (prefers-reduced-motion: reduce){
+    .card{animation-duration:.15s;}
+    .spinner{animation-duration:1.4s;}
+  }
+</style>
+</head>
+<body>
+
+<div id="wordmark">Fall in COMM</div>
+
+<!-- LOADING -->
+<div class="card" id="screenLoading">
+  <div class="spinner"></div>
+  <div class="desc">데이터를 불러오는 중이에요...</div>
+</div>
+
+<!-- FATAL ERROR -->
+<div class="card hidden" id="screenFatal">
+  <div class="eyebrow">오류</div>
+  <div class="title">불러오지 못했어요</div>
+  <div class="desc">참가자 명단을 불러오는 데 문제가 생겼어요. 인터넷 연결을 확인하고 다시 시도해주세요.</div>
+  <button class="btn" onclick="location.reload()">다시 시도</button>
+</div>
+
+<!-- LOGIN -->
+<div class="card hidden" id="screenLogin">
+  <div class="eyebrow">Fall in COMM · Spy Game</div>
+  <div class="title">로그인</div>
+  <div class="desc">이름과 개인코드를 입력해주세요.</div>
+  <div class="field">
+    <label for="loginName">이름</label>
+    <input id="loginName" type="text" placeholder="홍길동" autocomplete="off">
+  </div>
+  <div class="field">
+    <label for="loginCode">개인코드</label>
+    <input id="loginCode" type="text" placeholder="4자리 개인코드" autocomplete="off" inputmode="numeric">
+  </div>
+  <button class="btn" id="loginBtn">로그인</button>
+  <div class="error" id="loginError"></div>
+</div>
+
+<!-- LOTTERY CODE -->
+<div class="card hidden" id="screenLottery">
+  <div class="eyebrow" id="lotteryGreeting">환영합니다</div>
+  <div class="title">제비 코드를 입력하세요</div>
+  <div class="desc">뽑은 제비에 적힌 코드를 그대로 입력해주세요.</div>
+  <div class="field">
+    <label for="lotteryCode">제비 코드</label>
+    <input id="lotteryCode" type="text" placeholder="예: 12345" autocomplete="off" inputmode="numeric">
+  </div>
+  <button class="btn" id="lotteryBtn">확인</button>
+  <div class="error" id="lotteryError"></div>
+</div>
+
+<!-- RESULT -->
+<div class="card hidden" id="screenResult">
+  <div id="resultBody"></div>
+  <div class="meta" id="resultMeta"></div>
+</div>
+
+<script>
+(function(){
+  /* ============================================================
+     설정 — 아래 4개 값을 실제 주소로 바꿔주세요
+     ============================================================ */
+  const CONFIG = {
+    // 깃허브에 올린 list.txt 의 raw 링크 (이름|전화번호|개인코드)
+    LIST_URL: "https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/list.txt",
+    // 깃허브에 올린 data.txt 의 raw 링크 (코드|배정내용)
+    DATA_URL: "https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/data.txt",
+    // 구글 폼 제출 주소 (폼 HTML 소스에서 <form action="..."> 부분)
+    FORM_ACTION: "https://docs.google.com/forms/d/e/YOUR_FORM_ID/formResponse",
+    // 구글 폼의 각 문항 entry ID
+    FIELD_NAME: "entry.111111111",
+    FIELD_CODE: "entry.222222222",
+    FIELD_CONTENT: "entry.333333333"
+  };
+  /* ============================================================ */
+
+  const CITIZEN_TEXT = '학생들 중에 숨어 있는 6명의 스파이를 모두 색출하세요! 스파이로 의심되는 사람을 발견한다면, 2명의 동료를 설득하여 스텝에게 Emergency Meeting을 소집할 수 있습니다. 이는 인당 기회 1번이며, 모든 참가자들은 Emergency Meeting을 단 한번만 소집할 수 있습니다. 스파이도 시민으로 위장하여 Emergency Meeting을 소집할 수 있으니 조심하세요!';
+  const SPY_INTRO = '시민들 몰래 아래의 두 가지 미션을 내일 오전 9시 전까지 수행하세요!';
+  const SPY_OUTRO = '미션이 너무 어렵다면 다른 스파이와 몰래 접선하여 그 스파이가 대신 수행해 줄 수 있습니다.';
+
+  let PARTICIPANTS = [];
+  let CODES = [];
+  let currentUser = null; // {name, phone}
+
+  const screens = {
+    loading: document.getElementById('screenLoading'),
+    fatal: document.getElementById('screenFatal'),
+    login: document.getElementById('screenLogin'),
+    lottery: document.getElementById('screenLottery'),
+    result: document.getElementById('screenResult')
+  };
+  function showScreen(name){
+    Object.values(screens).forEach(el => el.classList.add('hidden'));
+    screens[name].classList.remove('hidden');
+    screens[name].style.animation = 'none';
+    void screens[name].offsetWidth;
+    screens[name].style.animation = '';
+  }
+
+  function fetchText(url){
+    const bust = url.indexOf('?') > -1 ? '&' : '?';
+    return fetch(url + bust + '_=' + Date.now(), { cache: 'no-store' }).then(function(res){
+      if(!res.ok) throw new Error('fetch failed: ' + url);
+      return res.text();
+    });
+  }
+
+  function parsePipeLines(text){
+    return text.split(/\r?\n/).map(function(l){ return l.trim(); }).filter(Boolean);
+  }
+
+  function parseList(text){
+    return parsePipeLines(text).map(function(line){
+      const parts = line.split('|').map(function(s){ return s.trim(); });
+      return { name: parts[0] || '', phone: parts[1] || '', code: parts[2] || '' };
+    });
+  }
+
+  function parseData(text){
+    return parsePipeLines(text).map(function(line){
+      const idx = line.indexOf('|');
+      if(idx === -1) return { code: line.trim(), content: '' };
+      return { code: line.slice(0, idx).trim(), content: line.slice(idx + 1).trim() };
+    });
+  }
+
+  /* -------- storage -------- */
+  const LS = {
+    get user(){ try{ return JSON.parse(localStorage.getItem('sg_user')); }catch(e){ return null; } },
+    set user(v){ localStorage.setItem('sg_user', JSON.stringify(v)); },
+    get result(){ try{ return JSON.parse(localStorage.getItem('sg_result')); }catch(e){ return null; } },
+    set result(v){ localStorage.setItem('sg_result', JSON.stringify(v)); }
+  };
+
+  /* -------- load data -------- */
+  function init(){
+    showScreen('loading');
+    Promise.all([fetchText(CONFIG.LIST_URL), fetchText(CONFIG.DATA_URL)])
+      .then(function(res){
+        PARTICIPANTS = parseList(res[0]);
+        CODES = parseData(res[1]);
+        restore();
+      })
+      .catch(function(err){
+        console.error(err);
+        showScreen('fatal');
+      });
+  }
+
+  function restore(){
+    const savedResult = LS.result;
+    const savedUser = LS.user;
+    if(savedResult && savedUser){
+      currentUser = savedUser;
+      renderResult(savedResult);
+      return;
+    }
+    if(savedUser){
+      currentUser = savedUser;
+      document.getElementById('lotteryGreeting').textContent = savedUser.name + '님, 환영합니다';
+      showScreen('lottery');
+      return;
+    }
+    showScreen('login');
+  }
+
+  /* -------- login -------- */
+  document.getElementById('loginBtn').addEventListener('click', function(){
+    const name = document.getElementById('loginName').value.trim();
+    const code = document.getElementById('loginCode').value.trim();
+    const errEl = document.getElementById('loginError');
+    errEl.classList.remove('show');
+
+    if(!name || !code){
+      errEl.textContent = '이름과 개인코드를 모두 입력해주세요.';
+      errEl.classList.add('show');
+      return;
+    }
+    const match = PARTICIPANTS.find(function(p){ return p.name === name && p.code === code; });
+    if(!match){
+      errEl.textContent = '이름 또는 개인코드가 일치하지 않아요. 다시 확인해주세요.';
+      errEl.classList.add('show');
+      return;
+    }
+    currentUser = { name: match.name, phone: match.phone };
+    LS.user = currentUser;
+    document.getElementById('lotteryGreeting').textContent = currentUser.name + '님, 환영합니다';
+    showScreen('lottery');
+  });
+
+  document.getElementById('loginCode').addEventListener('keydown', function(e){
+    if(e.key === 'Enter') document.getElementById('loginBtn').click();
+  });
+
+  /* -------- lottery code -------- */
+  document.getElementById('lotteryBtn').addEventListener('click', function(){
+    const code = document.getElementById('lotteryCode').value.trim();
+    const errEl = document.getElementById('lotteryError');
+    errEl.classList.remove('show');
+
+    if(!code){
+      errEl.textContent = '제비 코드를 입력해주세요.';
+      errEl.classList.add('show');
+      return;
+    }
+    const match = CODES.find(function(c){ return c.code === code; });
+    if(!match){
+      errEl.textContent = '유효하지 않은 코드예요. 제비에 적힌 코드를 다시 확인해주세요.';
+      errEl.classList.add('show');
+      return;
+    }
+    const isCitizen = match.content.trim() === '시민';
+    const result = {
+      code: match.code,
+      content: match.content,
+      role: isCitizen ? 'citizen' : 'spy'
+    };
+    LS.result = result;
+    logToSheet(currentUser.name, match.code, match.content);
+    renderResult(result);
+  });
+
+  document.getElementById('lotteryCode').addEventListener('keydown', function(e){
+    if(e.key === 'Enter') document.getElementById('lotteryBtn').click();
+  });
+
+  /* -------- google sheet logging (best-effort, fire and forget) -------- */
+  function logToSheet(name, code, content){
+    try{
+      const fd = new FormData();
+      fd.append(CONFIG.FIELD_NAME, name);
+      fd.append(CONFIG.FIELD_CODE, code);
+      fd.append(CONFIG.FIELD_CONTENT, content);
+      fetch(CONFIG.FORM_ACTION, { method: 'POST', mode: 'no-cors', body: fd });
+    }catch(e){
+      console.error('logging failed', e);
+    }
+  }
+
+  /* -------- render result -------- */
+  function splitMissions(content){
+    const i1 = content.indexOf('①');
+    const i2 = content.indexOf('②');
+    if(i1 > -1 && i2 > -1){
+      let m1 = content.slice(i1, i2).replace(/[,，]\s*$/, '').trim();
+      let m2 = content.slice(i2).trim();
+      return [m1, m2];
+    }
+    const parts = content.split(',');
+    if(parts.length >= 2){
+      return [parts[0].trim(), parts.slice(1).join(',').trim()];
+    }
+    return [content.trim()];
+  }
+
+  function renderResult(result){
+    const body = document.getElementById('resultBody');
+    const meta = document.getElementById('resultMeta');
+    body.innerHTML = '';
+
+    if(result.role === 'citizen'){
+      body.innerHTML =
+        '<div class="role-badge citizen">당신은 시민입니다</div>' +
+        '<div class="role-body">' + CITIZEN_TEXT + '</div>';
+    } else {
+      const missions = splitMissions(result.content);
+      let missionsHtml = missions.map(function(m){
+        return '<div class="mission-item">' + m + '</div>';
+      }).join('');
+
+      body.innerHTML =
+        '<div class="role-badge spy">당신은 스파이입니다</div>' +
+        '<div class="role-body">' + SPY_INTRO + '</div>' +
+        '<div class="missions">' + missionsHtml + '</div>' +
+        '<div class="role-body">' + SPY_OUTRO + '</div>' +
+        '<button class="btn ghost" id="guideBtn">시민 안내 보기</button>' +
+        '<div class="guide-panel" id="guidePanel"><div class="guide-inner"><b>"당신은 시민입니다"</b><br><br>' + CITIZEN_TEXT + '</div></div>';
+
+      document.getElementById('guideBtn').addEventListener('click', function(){
+        const panel = document.getElementById('guidePanel');
+        panel.classList.toggle('open');
+        this.textContent = panel.classList.contains('open') ? '시민 안내 닫기' : '시민 안내 보기';
+      });
+    }
+
+    meta.textContent = (currentUser ? currentUser.name + ' · ' : '') + '코드 ' + result.code;
+    showScreen('result');
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
